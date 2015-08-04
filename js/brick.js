@@ -36,10 +36,24 @@ Brick.prototype.draw = function() {
   context.stroke();
 }
 
+//make random level
+function randLevel() {
+  var arr = [];
+  for (var rows = 0, lim = 5; rows < lim; rows++ ) {
+    arr[rows] = [];
+    for (var cols = 0, limc = 10; cols < limc; cols++) {
+      arr[rows].push( Math.floor(Math.random()*2) );
+    }
+  }
+  return arr;
+}
 
 //create bricks based on level array
 function newLevel() {
   bottomBrick = 0;
+  if(levels.length < 1) {
+    levels.push(randLevel());
+  }
   var level = levels[0];
   for (var c = 0; c < level.length; c++) {
     for (var r = 0; r < level[c].length; r++) {
@@ -53,13 +67,8 @@ function newLevel() {
     } //end for
   }//end for
   //move balls
-  //flipBalls moves one ball left and one right
-  var flipBalls = 1;
   for (c = 0, r = balls.length; c < r; c++) {
-    balls[c].x = 300;
-    balls[c].y=300;
-    balls[c].dx = baseBallSpeed * flipBalls;
-    balls[c].dy = baseBallSpeed;
-    flipBalls *= -1;
+    balls.splice(0,1);
+    addBall();
   }
 }

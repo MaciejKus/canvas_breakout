@@ -13,6 +13,9 @@ mainLoopRender = function() {
   for (i = 0, j = bricks.length; i < j; i++ ) {
     bricks[i].draw();
   }
+  for (i = 0;  i < bonuss.length; i++) {
+    bonuss[i].draw();
+  }
   paddle.draw();
   requestAnimationFrame(mainLoopRender);
 };
@@ -20,16 +23,23 @@ mainLoopRender = function() {
 //lost
 lostBall = function(ball) {
   balls.splice(balls.indexOf(ball),1);
-//  newLevel();
-  addBall();
+  if(balls.length < 1) addBall();
 };
 
 //logic stuff
 mainLoopLogic = function() {
   for (var i = 0, j = balls.length; i < j; i++ ) {
     balls[i].move();
-    balls[i].checkCollision();
+    //only returns true if ball removed
+    if(balls[i].checkCollision()) {
+      i--;
+      j--;
+    }
   }
+  for (i = 0; i < bonuss.length; i++) {
+    bonuss[i].move();
+  }
+  checkBonus();
   timer = setTimeout(mainLoopLogic, 1000/fps);
 };
 

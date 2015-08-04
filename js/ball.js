@@ -3,7 +3,7 @@ var baseBallSpeed = 8;
 //balls[0] = new Ball(400,300,-baseBallSpeed,baseBallSpeed);
 
 function addBall() {
-  var newBall = new Ball(300,300,-baseBallSpeed,baseBallSpeed);
+  var newBall = new Ball(300,300,Math.random()*4-2,baseBallSpeed/3);
   balls.push(newBall);
 }
 
@@ -41,16 +41,25 @@ Ball.prototype.checkCollision = function() {
     this.dx = this.dx *(-1);
     this.x = canvas.width-this.r;
   }
-  if(this.y-this.r < 0) return this.dy = this.dy*(-1);
-  if(this.y+this.r > canvas.height) return lostBall(this);
+  //celing
+  if(this.y-this.r < 0) {
+    this.dy = this.dy*(-1);
+    return false;
+  }
+  //floor
+  if(this.y+this.r > canvas.height) {lostBall(this); return true;} //must return true
   //skip calculations is between paddle and bottomBrick
+  //just to save time
   if(this.y -this.r > bottomBrick && this.y+this.r < paddle.y) return false;
+  //add random bit of movemnet
+  var randMove = Math.random()*4 -2;
   // brick collion 
   // only changes diretion once, even though might collide with multiple bricks per move 
   var collidedWithBrick = 0;
   for (var i = 0, j = bricks.length; i < j; i++) {
     if( this.x+this.r > bricks[i].x && this.x-this.r < bricks[i].x+bricks[i].width && this.y+this.r > bricks[i].y && this.y-this.r < bricks[i].y + bricks[i].height) {
       collidedWithBrick = 1;
+      if(Math.random() * 20 < 1) bonuss.push(new Bonus(bricks[i].x,bricks[i].y));
       bricks.splice(i,1);
       i--;
       j--;
@@ -58,6 +67,7 @@ Ball.prototype.checkCollision = function() {
   }
   if(collidedWithBrick) {
     this.dy = this.dy*(-1);
+    this.dx += randMove;
     if (bricks.length < 1) {
        levels.shift();
        newLevel();
@@ -70,25 +80,26 @@ Ball.prototype.checkCollision = function() {
       //hit on left edge of paddle
       if(this.x+this.r < paddle.x + this.dx && this.x + this.r > paddle.x) {
         this.x = paddle.x - this.r;
-        this.dx = baseBallSpeed * -1.5;
+        this.dx = baseBallSpeed * -1.5 +randMove;
         this.dy = baseBallSpeed * -1.5;
       } else if( this.x +this.r > paddle.x && this.x - this.r < paddle.x + paddle.width) {
         this.y = paddle.y - this.r;
         this.dy = -baseBallSpeed;
-        this.dx = baseBallSpeed - (baseBallSpeed/4);
+        this.dx = baseBallSpeed - (baseBallSpeed/4) +randMove;
       }
     } else {
       // this.dx is negative
       // right edge of paddle
       if(this.x-this.r > paddle.x + paddle.width + this.dx && this.x-this.r < paddle.x + paddle.width) {
         this.x = paddle.x + paddle.width + this.r;
-        this.dx = baseBallSpeed * 2;
+        this.dx = baseBallSpeed * 2 + randMove;
         this.dy = baseBallSpeed * -2;
       } else if( this.x +this.r > paddle.x && this.x - this.r < paddle.x + paddle.width) {
         this.y = paddle.y - this.r;
-        this.dx = -baseBallSpeed + (baseBallSpeed/4);
+        this.dx = -baseBallSpeed + (baseBallSpeed/4) + randMove;
         this.dy = -baseBallSpeed;
       }
     } //end else
   } //end if
+  return false;
 };
